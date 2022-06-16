@@ -19,3 +19,5 @@ Thumbs.db
 # Avoid uploading development environment files
 node_modules
 package-lock.json
+.parcel-cache
+dist

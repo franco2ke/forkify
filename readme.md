@@ -38,3 +38,7 @@ b. Features
 - On page load, read saved bookmarks from local storage and display
 
 c. Features -> Nice Structured Flowchart
+
+Installing Dev Dependencies
+
+- % npm i parcel - D
