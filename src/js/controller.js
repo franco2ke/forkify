@@ -37,13 +37,22 @@ const renderSpinner = function (parentEl) {
 // load recipe from api and process the response
 const showRecipe = async function () {
   try {
+    // Obtaining the hash from the window object once hashchange event has been triggered
+    // The Window.location read-only property returns a Location object with information about the current location of the document.
+    // The Location interface represents the location (URL) of the object it is linked to. Changes done on it are reflected on the object it relates to. Both the Document and Window interface have such a linked Location, accessible via Document.location and Window.location respectively.
+    // location.hash - A string containing a '#' followed by the fragment identifier of the URL.
+    const id = window.location.hash.slice(1); // slice from position 1 to the end, i.e. remove first character
+    console.log(id);
+    // Guard clause for case where URL has no id
+    if (!id) return;
+
     // 1) loading Recipe
 
     // Render spinner when waiting for image to load
     renderSpinner(recipeContainer);
 
     const res = await fetch(
-      'https://forkify-api.herokuapp.com/api/v2/recipes/5ed6604591c37cdc054bcc40'
+      `https://forkify-api.herokuapp.com/api/v2/recipes/${id}`
       // 'https://forkify-api.herokuapp.com/api/v2/recipes/5ed6604591c37cdc054bc886'
     );
     const data = await res.json();
@@ -175,5 +184,18 @@ const showRecipe = async function () {
   }
 };
 
-//
-showRecipe();
+// LEC 290: Listening for load and hashchange events
+
+// NOTE : Listen for the hashchange event
+// the changing of the hash which is a url value, is an event that we can listen for
+// The recipe is loaded everytime a recipe is clicked on.
+// window.addEventListener('hashchange', showRecipe);
+
+// NOTE: Listen for the load event
+// Handle's situation where the url is copied to a new browser page in which case there is no change and hence the hashchange event is not triggered.
+// window.addEventListener('load', showRecipe);
+
+// Using an array to attach multiple events (hashchange, load) to one callback function (showRecipe)
+['hashchange', 'load'].forEach(event =>
+  window.addEventListener(event, showRecipe)
+);
