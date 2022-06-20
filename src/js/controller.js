@@ -42,7 +42,7 @@ const showRecipe = async function () {
     // The Location interface represents the location (URL) of the object it is linked to. Changes done on it are reflected on the object it relates to. Both the Document and Window interface have such a linked Location, accessible via Document.location and Window.location respectively.
     // location.hash - A string containing a '#' followed by the fragment identifier of the URL.
     const id = window.location.hash.slice(1); // slice from position 1 to the end, i.e. remove first character
-    console.log(id);
+    // console.log(id);
     // Guard clause for case where URL has no id
     if (!id) return;
 
@@ -55,13 +55,15 @@ const showRecipe = async function () {
       `https://forkify-api.herokuapp.com/api/v2/recipes/${id}`
       // 'https://forkify-api.herokuapp.com/api/v2/recipes/5ed6604591c37cdc054bc886'
     );
-    const data = await res.json();
 
     // Throw custom error
     if (!res.ok) throw new Error(`${data.message} (${res.status})`);
 
+    const data = await res.json();
+
     console.log(res, data);
 
+    // Object destructuring
     let { recipe } = data.data;
 
     // overwriting the old object to remove underscores
@@ -149,7 +151,7 @@ const showRecipe = async function () {
               </div>
             </li>`;
             })
-            // Join array elements into one string
+            // Join() creates and returns a new string by concatenating all the elements in an array, separated by commas or a specified separator string.
             .join('')}
         </ul>
       </div>
@@ -191,7 +193,7 @@ const showRecipe = async function () {
 // The recipe is loaded everytime a recipe is clicked on.
 // window.addEventListener('hashchange', showRecipe);
 
-// NOTE: Listen for the load event
+// NOTE: Listen for the page load event
 // Handle's situation where the url is copied to a new browser page in which case there is no change and hence the hashchange event is not triggered.
 // window.addEventListener('load', showRecipe);
 
@@ -199,3 +201,64 @@ const showRecipe = async function () {
 ['hashchange', 'load'].forEach(event =>
   window.addEventListener(event, showRecipe)
 );
+
+////////////////////////////////////////
+// LEC 291: The MVC Architecture
+// Why do we need to have an architecture for our app?
+
+// Like a house, software needs a STRUCTURE: the way we organize our code
+// STRUCTURE: How we organize and divide the code into different modules, classes and functions
+// MAINTAINABILITY: A project is never done! We will need to be able to easily change it in the future
+// EXPANDABILITY: We also need ot be able to easily add new features
+// The perfect architecture meets the above 3 needs.
+
+// We can create our own architecture.
+// OR we can use well-established architecture patterns like MVC, MVP, Flux, etc.
+// Frameworks like React, Vue, Angular, etc., help modern developers take care of the Architecture for them, especially for large scale applications
+
+// NOTE Components of any Architecture
+// 1. Business Logic
+// 2. State
+// 3. HTTP Library
+// 4. Application Logic (Router)
+// 5. Presentation Logic (UI Layer)
+
+// 1. Business Logic
+// - Code that solves the actual business problem.
+// - Directly related to what business does and what it needs.
+// - Example: sending messages, storing transactions, calculating taxes
+
+// 2. State
+// - Essentially stores all the data about the application
+// - Should be the single source of truth
+// - UI should be kept in sync with the state
+// - State libraries exist ? e.g. Redux
+
+// 3. HTTP Library
+// - Responsible for making and receiving AJAX requests (fetch())
+// - Optional but almost always necessary in real world apps
+
+// 4. Application Logic (Router)
+// - Code that is only concerned about the implementation of the application itself.
+// - Handles navigation and UI events. Not related to underlying business problem
+// - Router - mapping actions to the user's navigation
+
+// 5. Presentation Logic (UI Layer)
+// - Code that is concerned about the visible part of the application.
+// - Essentially displays application state to keep everything in sync.
+
+// NOTE The Model - View - Controller (MVC) Architecture
+// MODEL -> About the applications data, contains business logic, state and HTTP Library. Interacts with web
+// CONTROLLER -> Contains the application logic and acts as the bridge between model and view (which shouldn't know about one another)
+// Controller Handles UI events and dispatches tasks to model and view - orchestrates the application.
+// VIEW -> It's the presentation logic and what interacts with the User
+
+// One of the main aims of the MVC architecture is to separate busines logic from presentation logic
+// Two types of communication flows in app
+// 1. Function calls and module imports
+// 2. Data flows between the various components
+
+// Only the controller, imports and calls functions from the model and view, never the other way round.
+// Model and View, completely isolated - Don't import anything.
+
+// NOTE: Controller and Model created as Modules, while View created as Class
