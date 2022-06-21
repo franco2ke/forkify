@@ -8,14 +8,6 @@ import 'regenerator-runtime/runtime'; // Polyfills everything else
 // console.log(icons);
 const recipeContainer = document.querySelector('.recipe');
 
-const timeout = function (s) {
-  return new Promise(function (_, reject) {
-    setTimeout(function () {
-      reject(new Error(`Request took too long! Timeout after ${s} second`));
-    }, s * 1000);
-  });
-};
-
 // https://forkify-api.herokuapp.com/v2
 
 ///////////////////////////////////////
@@ -24,7 +16,7 @@ const timeout = function (s) {
 // load recipe from api and process the response
 const controlRecipes = async function () {
   try {
-    // Obtaining the hash from the window object once hashchange event has been triggered
+    // Obtain the hash from the window object once hashchange event has been triggered
     // The Window.location read-only property returns a Location object with information about the current location of the document.
     // The Location interface represents the location (URL) of the object it is linked to. Changes done on it are reflected on the object it relates to. Both the Document and Window interface have such a linked Location, accessible via Document.location and Window.location respectively.
     // location.hash - A string containing a '#' followed by the fragment identifier of the URL.
@@ -35,7 +27,7 @@ const controlRecipes = async function () {
     // Render spinner when waiting for image to load
     recipeView.renderSpinner();
 
-    // 1) loading Recipe (async function which returns promise).
+    // 1) load Recipe (async function which returns promise).
     // An async calling another async where we want to stop execution until a result is returned.
     // Result will be change of state : state.recipe;
     await model.loadRecipe(id);
@@ -43,7 +35,7 @@ const controlRecipes = async function () {
     // 2) LEC 289: Rendering the Recipe
     recipeView.render(model.state.recipe);
   } catch (err) {
-    alert(err);
+    alert(`${err} wow wow`);
   }
 };
 
@@ -128,3 +120,4 @@ const controlRecipes = async function () {
 // LEC 292: Refactoring for MVC
 // 1 file for each different view.
 // Views are simply much bigger
+// async await returns fulfilled promises even when errors occur
