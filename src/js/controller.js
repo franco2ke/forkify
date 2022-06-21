@@ -21,9 +21,9 @@ const controlRecipes = async function () {
     // The Location interface represents the location (URL) of the object it is linked to. Changes done on it are reflected on the object it relates to. Both the Document and Window interface have such a linked Location, accessible via Document.location and Window.location respectively.
     // location.hash - A string containing a '#' followed by the fragment identifier of the URL.
     const id = window.location.hash.slice(1); // slice from position 1 to the end, i.e. remove first character
-    console.log(id);
     // Guard clause for case where URL has no id
     if (!id) return;
+    console.log(id);
     // Render spinner when waiting for image to load
     recipeView.renderSpinner();
 
@@ -35,7 +35,7 @@ const controlRecipes = async function () {
     // 2) LEC 289: Rendering the Recipe
     recipeView.render(model.state.recipe);
   } catch (err) {
-    console.log(`${err} - 🤪 🤪 🤪`);
+    recipeView.renderError();
   }
 };
 
@@ -126,7 +126,7 @@ init();
 // async await returns fulfilled promises even when errors occur
 
 ////////////////////////////////////////
-// LEC 293: Event Handlers in MVC: Publisher-Subscriber Pattern
+// LEC 294: Event Handlers in MVC: Publisher-Subscriber Pattern
 // How we can listen for events and handle them within the MVC architecture efficiently
 // Events should be handled in the controller (otherwise we would have application logic in the view)
 // Events should be listened for in the view (otherwise we would need DOM elements, Presentation Logic, in the controller)
@@ -144,3 +144,6 @@ init();
 // Basically we subscribe the controller based function to the publisher
 // The publisher listens for events and uses the subscriber as callback
 // E.G. As soon as the listener publishes an event, the handler that has subscribed will get called
+
+////////////////////////////////////////
+// LEC 295: Implementing Error and Success Messages
