@@ -11,6 +11,7 @@ class RecipeView {
 
   render(data) {
     this.#data = data;
+
     const markup = this.#generateMarkup();
     // Remove place holder html in container
     this.#clear();
