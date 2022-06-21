@@ -35,10 +35,16 @@ const controlRecipes = async function () {
     // 2) LEC 289: Rendering the Recipe
     recipeView.render(model.state.recipe);
   } catch (err) {
-    alert(`${err} wow wow`);
+    console.log(`${err} - 🤪 🤪 🤪`);
   }
 };
 
+// Publisher Subscriber Pattern Implementation
+const init = function () {
+  recipeView.addHandlerRender(controlRecipes);
+};
+
+init();
 // LEC 290: Listening for load and hashchange events
 
 // NOTE : Listen for the hashchange event
@@ -51,9 +57,6 @@ const controlRecipes = async function () {
 // window.addEventListener('load', controlRecipes);
 
 // Using an array to attach multiple events (hashchange, load) to one callback function (controlRecipes)
-['hashchange', 'load'].forEach(event =>
-  window.addEventListener(event, controlRecipes)
-);
 
 ////////////////////////////////////////
 // LEC 291: The MVC Architecture
@@ -121,3 +124,23 @@ const controlRecipes = async function () {
 // 1 file for each different view.
 // Views are simply much bigger
 // async await returns fulfilled promises even when errors occur
+
+////////////////////////////////////////
+// LEC 293: Event Handlers in MVC: Publisher-Subscriber Pattern
+// How we can listen for events and handle them within the MVC architecture efficiently
+// Events should be handled in the controller (otherwise we would have application logic in the view)
+// Events should be listened for in the view (otherwise we would need DOM elements, Presentation Logic, in the controller)
+// NOTE: however the simple solution to this problem; calling the controller function from the view does not work because, the view is not suppossed to even know that a controller exists.
+
+// The right solution is to use a design pattern known as the Publisher-Subscriber Pattern
+// A design pattern is just a standard solution to a particular type of problem
+// Publisher - Code that knows when to react, e.g. when user clicks search result
+// Subscriber - Code that wants to react, that executes when an event occurs
+// The Publisher is not aware that a Subscriber exists, as subscriber is in the controller
+// NOTE: We can subscribe to the publisher by passing in the subscriber function to the Publisher as an argument.
+// 0. Program Starts
+// 1. init() function executes
+// 2. init() calls the publisher function and passes the subscriber function as an argument
+// Basically we subscribe the controller based function to the publisher
+// The publisher listens for events and uses the subscriber as callback
+// E.G. As soon as the listener publishes an event, the handler that has subscribed will get called
