@@ -1,17 +1,20 @@
 import * as model from './model.js';
 import recipeView from './views/recipeView.js';
+import searchView from './views/searchView.js';
+import resultsView from './views/resultsView.js';
 
 // Polyfilling
 import 'core-js/stable'; // Polyfills async await
 import 'regenerator-runtime/runtime'; // Polyfills everything else
 
-// console.log(icons);
-const recipeContainer = document.querySelector('.recipe');
+// NOTE Parcel code to enabel hot module reloading
+// Patch the code that was changed and keep the state in your app
+// Retain application state which is lost during a full reload
+if (module.hot) {
+  module.hot.accept();
+}
 
-// https://forkify-api.herokuapp.com/v2
-
-///////////////////////////////////////
-// LEC 288: Loading a Recipe from API
+// LEC 288: Load a Recipe from API
 
 // load recipe from api and process the response
 const controlRecipes = async function () {
@@ -23,7 +26,7 @@ const controlRecipes = async function () {
     const id = window.location.hash.slice(1); // slice from position 1 to the end, i.e. remove first character
     // Guard clause for case where URL has no id
     if (!id) return;
-    console.log(id);
+    // console.log(id);
     // Render spinner when waiting for image to load
     recipeView.renderSpinner();
 
@@ -39,9 +42,26 @@ const controlRecipes = async function () {
   }
 };
 
+const controlSearchResults = async function () {
+  try {
+    resultsView.renderSpinner();
+    // 1) Get search query
+    const query = searchView.getQuery();
+    // Guard clause for when no query has been entered
+    if (!query) return;
+    // 2) Load search results via state update
+    await model.loadSearchResults(query);
+    // 3) Render results
+    resultsView.render(model.state.search.results);
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 // Publisher Subscriber Pattern Implementation
 const init = function () {
   recipeView.addHandlerRender(controlRecipes);
+  searchView.addHandlerSearch(controlSearchResults);
 };
 
 init();
@@ -130,7 +150,7 @@ init();
 // How we can listen for events and handle them within the MVC architecture efficiently
 // Events should be handled in the controller (otherwise we would have application logic in the view)
 // Events should be listened for in the view (otherwise we would need DOM elements, Presentation Logic, in the controller)
-// NOTE: however the simple solution to this problem; calling the controller function from the view does not work because, the view is not suppossed to even know that a controller exists.
+// NOTE: however the simple solution to this problem; calling the controller function from the view does not work because, the view is not supposed to even know that a controller exists.
 
 // The right solution is to use a design pattern known as the Publisher-Subscriber Pattern
 // A design pattern is just a standard solution to a particular type of problem
@@ -147,3 +167,6 @@ init();
 
 ////////////////////////////////////////
 // LEC 295: Implementing Error and Success Messages
+
+////////////////////////////////////////
+// LEC 296: Implementing Search Results - Part 1
