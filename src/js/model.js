@@ -6,12 +6,16 @@ import { getJSON } from './helpers.js';
 // The state object
 export const state = {
   recipe: {},
+  search: {
+    query: '',
+    results: [],
+  },
 };
 
 // load Recipe will edit the state object, afterwhich the controller will obtain the data from there.
 export const loadRecipe = async function (id) {
   try {
-    const data = await getJSON(`${API_URL}/${id}`);
+    const data = await getJSON(`${API_URL}${id}`);
 
     // console.log(data);
 
@@ -31,7 +35,27 @@ export const loadRecipe = async function (id) {
     };
     console.log(state.recipe);
   } catch (err) {
-    // Temp error handling
+    console.error(`${err} 💥 💥 💥 💥`);
+    throw err;
+  }
+};
+
+export const loadSearchResults = async function (query) {
+  try {
+    state.search.query = query;
+    const data = await getJSON(`${API_URL}?search=${query}`);
+    console.log(data);
+
+    // create a new array of recipe results from mapping each recipe object
+    state.search.results = data.data.recipes.map(rec => {
+      return {
+        id: rec.id,
+        title: rec.title,
+        publisher: rec.publisher,
+        image: rec.image_url,
+      };
+    });
+  } catch (err) {
     console.error(`${err} 💥 💥 💥 💥`);
     throw err;
   }
