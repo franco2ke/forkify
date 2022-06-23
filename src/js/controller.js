@@ -2,6 +2,7 @@ import * as model from './model.js';
 import recipeView from './views/recipeView.js';
 import searchView from './views/searchView.js';
 import resultsView from './views/resultsView.js';
+import paginationView from './views/paginationView.js';
 
 // Polyfilling
 import 'core-js/stable'; // Polyfills async await
@@ -10,9 +11,9 @@ import 'regenerator-runtime/runtime'; // Polyfills everything else
 // NOTE Parcel code to enabel hot module reloading
 // Patch the code that was changed and keep the state in your app
 // Retain application state which is lost during a full reload
-if (module.hot) {
-  module.hot.accept();
-}
+// if (module.hot) {
+//   module.hot.accept();
+// }
 
 // LEC 288: Load a Recipe from API
 
@@ -42,6 +43,7 @@ const controlRecipes = async function () {
   }
 };
 
+// Handles Search Queries and Results
 const controlSearchResults = async function () {
   try {
     resultsView.renderSpinner();
@@ -52,16 +54,29 @@ const controlSearchResults = async function () {
     // 2) Load search results via state update
     await model.loadSearchResults(query);
     // 3) Render results
-    resultsView.render(model.state.search.results);
+    // resultsView.render(model.state.search.results);
+    // Render results with Pagination (e.g. 10 per page)
+    resultsView.render(model.getSearchResultsPage());
+    // 4) Display / Render the pagination buttons
+    paginationView.render(model.state.search);
   } catch (err) {
     console.log(err);
   }
 };
 
+const controlPagination = function (goToPage) {
+  // 1) Render new page results
+  resultsView.render(model.getSearchResultsPage(goToPage));
+  // 4) Display / Render new pagination buttons
+  paginationView.render(model.state.search);
+};
+
+// Initializes the application
 // Publisher Subscriber Pattern Implementation
 const init = function () {
   recipeView.addHandlerRender(controlRecipes);
   searchView.addHandlerSearch(controlSearchResults);
+  paginationView.addHandlerClick(controlPagination);
 };
 
 init();
