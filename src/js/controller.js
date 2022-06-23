@@ -42,6 +42,7 @@ const controlRecipes = async function () {
   }
 };
 
+// Handles Search Queries and Results
 const controlSearchResults = async function () {
   try {
     resultsView.renderSpinner();
@@ -52,12 +53,15 @@ const controlSearchResults = async function () {
     // 2) Load search results via state update
     await model.loadSearchResults(query);
     // 3) Render results
-    resultsView.render(model.state.search.results);
+    // resultsView.render(model.state.search.results);
+    // Pagination
+    resultsView.render(model.getSearchResultsPage());
   } catch (err) {
     console.log(err);
   }
 };
 
+// Initializes the application
 // Publisher Subscriber Pattern Implementation
 const init = function () {
   recipeView.addHandlerRender(controlRecipes);
