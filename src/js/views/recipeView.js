@@ -23,7 +23,7 @@ class RecipeView extends View {
     this._parentElement.addEventListener('click', function (e) {
       const btn = e.target.closest('.btn--update-servings');
       if (!btn) return;
-      console.log(btn);
+      // console.log(btn);
       // - dashes in attribute names are converted to camel case
       const updateTo = +btn.dataset.updateTo;
       if (updateTo > 0) handler(updateTo);
@@ -61,9 +61,9 @@ class RecipeView extends View {
           <span class="recipe__info-text">servings</span>
 
           <div class="recipe__info-buttons">
-            <button data-update-to='${
+            <button class="btn--tiny btn--update-servings" data-update-to='${
               +this._data.servings - 1
-            }' class="btn--tiny btn--update-servings">
+            }'>
               <svg>
                 <use href="${icons}#icon-minus-circle"></use>
               </svg>

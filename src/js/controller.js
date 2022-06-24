@@ -27,7 +27,10 @@ const controlRecipes = async function () {
     const id = window.location.hash.slice(1); // slice from position 1 to the end, i.e. remove first character
     // Guard clause for case where URL has no id
     if (!id) return;
-    // console.log(id);
+
+    // 0) Update results view to mark selected search result when loading recipe
+    resultsView.update(model.getSearchResultsPage());
+
     // Render spinner when waiting for image to load
     recipeView.renderSpinner();
 
@@ -77,7 +80,9 @@ const controlServings = function (newServings) {
   // Update the recipe servings (in state)
   model.updateServings(newServings);
   // Update the recipe view
-  recipeView.render(model.state.recipe);
+  // recipeView.render(model.state.recipe);
+  // Update the recipe view using a DOM Updating Algorithm
+  recipeView.update(model.state.recipe);
 };
 
 // Initializes the application
@@ -194,4 +199,11 @@ init();
 // LEC 295: Implementing Error and Success Messages
 
 ////////////////////////////////////////
-// LEC 296: Implementing Search Results - Part 1
+// LEC 302: Developing a DOM updating Algorithm
+// - To update the DOM only in areas where something has changed
+// - Reduce strain on the browser
+// - An update method to use in updating the servings
+
+// Some DOM properties don’t possess corresponding attributes.
+// Some HTML attributes don’t possess corresponding properties.
+// Some HTML attributes, like ‘class’, possess 1:1 mapping to properties.
