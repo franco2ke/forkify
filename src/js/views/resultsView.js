@@ -8,11 +8,14 @@ class ResultsView extends View {
   _message = '';
 
   _generateMarkup() {
-    console.log(this._data);
+    // log the received data if array is not empty
+    if (this._data && this._data.length !== 0) console.log(this._data);
+    // For each recipe, generate markup preview then join them into one code string
     return this._data.map(this._generateMarkupPreview).join('');
   }
 
   _generateMarkupPreview(result) {
+    // if the url id is same as preview id, highlight recipe preview
     const id = window.location.hash.slice(1);
 
     return `

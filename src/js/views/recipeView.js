@@ -19,14 +19,25 @@ class RecipeView extends View {
     );
   }
 
-  addHandlerUpdateServing(handler) {
+  addHandlerUpdateServings(handler) {
     this._parentElement.addEventListener('click', function (e) {
       const btn = e.target.closest('.btn--update-servings');
       if (!btn) return;
       // console.log(btn);
       // - dashes in attribute names are converted to camel case
-      const updateTo = +btn.dataset.updateTo;
+      const updateTo = +btn.dataset.updateTo; // data-update-to attribute --> dataset.updateTo, dash becomes Camelcase
+      // Ensure serving is never reduced to below zero
       if (updateTo > 0) handler(updateTo);
+    });
+  }
+
+  addHandlerAddBookmark(handler) {
+    this._parentElement.addEventListener('click', function (e) {
+      // important to use event delegation as button whose events we are targetting does not exist when the app is loaded / initialized <-- event delegation use case
+      // impossible to add an event listener to an element that does not exist
+      const btn = e.target.closest('.btn--bookmark');
+      if (!btn) return;
+      handler();
     });
   }
 
@@ -62,14 +73,14 @@ class RecipeView extends View {
 
           <div class="recipe__info-buttons">
             <button class="btn--tiny btn--update-servings" data-update-to='${
-              +this._data.servings - 1
+              this._data.servings - 1
             }'>
               <svg>
                 <use href="${icons}#icon-minus-circle"></use>
               </svg>
             </button>
             <button class="btn--tiny btn--update-servings" data-update-to="${
-              +this._data.servings + 1
+              this._data.servings + 1
             }">
               <svg>
                 <use href="${icons}#icon-plus-circle"></use>
@@ -79,9 +90,11 @@ class RecipeView extends View {
         </div>
 
         <div class="recipe__user-generated"></div>
-        <button class="btn--round">
+        <button class="btn--round btn--bookmark">
           <svg class="">
-            <use href="${icons}#icon-bookmark-fill"></use>
+            <use href="${icons}#icon-bookmark${
+      this._data.bookmarked ? '-fill' : ''
+    }"></use>
           </svg>
         </button>
       </div>

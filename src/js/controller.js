@@ -20,7 +20,7 @@ import 'regenerator-runtime/runtime'; // Polyfills everything else
 // load recipe from api and process the response
 const controlRecipes = async function () {
   try {
-    // Obtain the hash from the window object once hashchange event has been triggered
+    // Obtain the hash from the window object once hashchange/load event has been triggered
     // The Window.location read-only property returns a Location object with information about the current location of the document.
     // The Location interface represents the location (URL) of the object it is linked to. Changes done on it are reflected on the object it relates to. Both the Document and Window interface have such a linked Location, accessible via Document.location and Window.location respectively.
     // location.hash - A string containing a '#' followed by the fragment identifier of the URL.
@@ -36,7 +36,7 @@ const controlRecipes = async function () {
 
     // 1) load Recipe (async function which returns promise).
     // An async calling another async where we want to stop execution until a result is returned.
-    // Result will be change of state : state.recipe;
+    // fetch recipe data and store in : model.state.recipe;
     await model.loadRecipe(id);
 
     // 2) LEC 289: Rendering the Recipe
@@ -54,7 +54,7 @@ const controlSearchResults = async function () {
     const query = searchView.getQuery();
     // Guard clause for when no query has been entered
     if (!query) return;
-    // 2) Load search results via state update
+    // 2) Load search results and update to state
     await model.loadSearchResults(query);
     // 3) Render results
     // resultsView.render(model.state.search.results);
@@ -67,11 +67,12 @@ const controlSearchResults = async function () {
   }
 };
 
-// Handler Pagination
+// Handler for Page changes (when prev or next buttons are pressed)
 const controlPagination = function (goToPage) {
-  // 1) Render new page results
+  // 1) Render new page results and update search page number in state
   resultsView.render(model.getSearchResultsPage(goToPage));
-  // 4) Display / Render new pagination buttons
+  // 2) Display / Render new pagination buttons
+  // - Obtains current search page number from state
   paginationView.render(model.state.search);
 };
 
@@ -85,13 +86,27 @@ const controlServings = function (newServings) {
   recipeView.update(model.state.recipe);
 };
 
+const controlAddBookmark = function () {
+  if (!model.state.recipe.bookmarked) model.addBookmark(model.state.recipe);
+  else model.deleteBookmark(model.state.recipe.id);
+
+  recipeView.update(model.state.recipe);
+};
+
 // Initializes the application
 // Publisher Subscriber Pattern Implementation
 const init = function () {
+  // Register Handler Functions
+  // Load recipe on appropriate events (load or hashchange)
   recipeView.addHandlerRender(controlRecipes);
-  recipeView.addHandlerUpdateServing(controlServings);
+  // Update recipe quantities on change of serving size
+  recipeView.addHandlerUpdateServings(controlServings);
+  // Add Bookmark on bookmark button click
+  recipeView.addHandlerAddBookmark(controlAddBookmark);
+  // Handler for Search Results
   searchView.addHandlerSearch(controlSearchResults);
-  paginationView.addHandlerClick(controlPagination);
+  // Scroll search results page by page
+  paginationView.addHandlerChangePage(controlPagination);
 };
 
 init();
