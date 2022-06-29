@@ -94,6 +94,13 @@ export const updateServings = function (newServings) {
   state.recipe.servings = newServings;
 };
 
+// Store bookmarks in local storage
+const persistBookmarks = function () {
+  // in chrome dev tools --> Application tab --> Storage --> local storage
+  // stringify converts object to JSON string
+  localStorage.setItem('bookmarks', JSON.stringify(state.bookmarks));
+};
+
 export const addBookmark = function (recipe) {
   // Bookmarking recipe by adding it to the bookmark array in the state object
   state.bookmarks.push(recipe);
@@ -101,6 +108,8 @@ export const addBookmark = function (recipe) {
   // Mark currently loaded recipe as a bookmarked recipe in order to render bookmark button correctly
   // update recipe object
   if (recipe.id === state.recipe.id) state.recipe.bookmarked = true;
+  // update bookmarks in local storage
+  persistBookmarks();
 };
 
 export const deleteBookmark = function (id) {
@@ -110,4 +119,26 @@ export const deleteBookmark = function (id) {
   state.bookmarks.splice(index, 1);
   // Mark currently recipe as NOT bookmarked
   if (id === state.recipe.id) state.recipe.bookmarked = false;
+
+  // update bookmarks in local storage
+  persistBookmarks();
 };
+
+// Model Initialization
+// --> Load bookmarks from memory
+const init = function () {
+  const storage = localStorage.getItem('bookmarks');
+  // JSON.parse() converts JSON string to object
+  if (storage) state.bookmarks = JSON.parse(storage);
+};
+
+// init runs as soon a module is imported I believe
+init();
+console.log(state.bookmarks);
+
+// Debugging function to clear bookmarks
+// const clearBookmarks = function () {
+//   localStorage.clear('bookmarks');
+// };
+
+// clearBookmarks();

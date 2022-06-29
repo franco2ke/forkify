@@ -29,24 +29,27 @@ const controlRecipes = async function () {
     // Guard clause for case where URL has no id
     if (!id) return;
 
-    // 0) Update results view to highlight selected search result when loading recipe
-    resultsView.update(model.getSearchResultsPage());
-    console.log(model.state.bookmarks);
-    // Update bookmarks menu to highlight selected recipe
-    bookmarksView.update(model.state.bookmarks);
-
-    // Render spinner when waiting for image to load
+    // 1) Render spinner when waiting for recipe to load
     recipeView.renderSpinner();
 
-    // 1) load Recipe (async function which returns promise).
+    // 2) Update results view to highlight selected search result when loading recipe
+    resultsView.update(model.getSearchResultsPage());
+    // console.log(model.state.bookmarks);
+
+    // 3) Update bookmarks menu to highlight selected recipe
+    // debugger;
+    bookmarksView.update(model.state.bookmarks);
+
+    // 4) load Recipe (async function which returns promise).
     // An async calling another async where we want to stop execution until a result is returned.
     // fetch recipe data and store in : model.state.recipe;
     await model.loadRecipe(id);
 
-    // 2) LEC 289: Rendering the Recipe
+    // 5) LEC 289: Rendering the Recipe
     recipeView.render(model.state.recipe);
   } catch (err) {
     recipeView.renderError();
+    console.error(err);
   }
 };
 
@@ -100,10 +103,16 @@ const controlAddBookmark = function () {
   bookmarksView.render(model.state.bookmarks);
 };
 
+const controlBookmarks = function () {
+  bookmarksView.render(model.state.bookmarks);
+};
+
 // Initializes the application
 // Publisher Subscriber Pattern Implementation
 const init = function () {
   // Register Handler Functions
+  // Render bookmarks on initial page load to allow updates
+  bookmarksView.addHandlerRender(controlBookmarks);
   // Load recipe on appropriate events (load or hashchange)
   recipeView.addHandlerRender(controlRecipes);
   // Update recipe quantities on change of serving size
