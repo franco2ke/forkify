@@ -1,4 +1,5 @@
 // named imports
+// import { bind } from 'core-js/core/function';
 import { async } from 'regenerator-runtime';
 import { API_URL, RES_PER_PAGE } from './config.js';
 import { getJSON } from './helpers.js';
@@ -12,6 +13,7 @@ export const state = {
     resultsPerPage: RES_PER_PAGE,
     page: 1,
   },
+  bookmarks: [],
 };
 
 // load Recipe will edit the state object, afterwhich the controller will obtain the data from there.
@@ -24,7 +26,8 @@ export const loadRecipe = async function (id) {
     // Object destructuring
     const { recipe } = data.data;
 
-    // overwriting the old object to remove underscores
+    // overwriting the old object to remove underscore and erase old data
+    // replacing with a new object
     state.recipe = {
       id: recipe.id,
       title: recipe.title,
@@ -35,6 +38,13 @@ export const loadRecipe = async function (id) {
       cookingTime: recipe.cooking_time,
       ingredients: recipe.ingredients,
     };
+
+    // check if recipe is stored as bookmark and update 'bookmarked' property if true
+    // some() loops over an array and returns true if any meets the condition provided
+    if (state.bookmarks.some(bookmark => bookmark.id === state.recipe.id))
+      state.recipe.bookmarked = true;
+    else state.recipe.bookmarked = false;
+
     console.log(state.recipe);
   } catch (err) {
     console.error(`${err} 💥 💥 💥 💥`);
@@ -57,6 +67,8 @@ export const loadSearchResults = async function (query) {
         image: rec.image_url,
       };
     });
+    // Reset search results page on every search
+    state.search.page = 1;
   } catch (err) {
     console.error(`${err} 💥 💥 💥 💥`);
     throw err;
@@ -72,11 +84,30 @@ export const getSearchResultsPage = function (page = state.search.page) {
 };
 
 export const updateServings = function (newServings) {
-  // Reach into recipe state and change ingredient quantities
+  // Reach into recipe state and change quantities for each ingredient
   state.recipe.ingredients.forEach(ing => {
     ing.quantity = (ing.quantity * newServings) / state.recipe.servings;
+    // newQt = (oldQt/oldServings) * newServings
   });
 
-  // Update the Number of persons served
+  // Update the Number of persons served in the state, to avoid error when changing servings severally
   state.recipe.servings = newServings;
+};
+
+export const addBookmark = function (recipe) {
+  // Bookmarking recipe by adding it to the bookmark array in the state object
+  state.bookmarks.push(recipe);
+
+  // Mark currently loaded recipe as a bookmarked recipe in order to render bookmark button correctly
+  // update recipe object
+  if (recipe.id === state.recipe.id) state.recipe.bookmarked = true;
+};
+
+export const deleteBookmark = function (id) {
+  // Find index of recipe in bookmarks array using id
+  const index = state.bookmarks.findIndex(el => el.id === id);
+  // Delete bookmark from array
+  state.bookmarks.splice(index, 1);
+  // Mark currently recipe as NOT bookmarked
+  if (id === state.recipe.id) state.recipe.bookmarked = false;
 };

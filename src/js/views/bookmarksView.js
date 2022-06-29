@@ -4,19 +4,20 @@ import View from './View.js';
 import previewView from './previewView.js';
 import icons from 'url:../../img/icons.svg'; // For parcel 2
 
-class ResultsView extends View {
-  _parentElement = document.querySelector('.results');
-  _errorMessage = 'No recipes found for your query! Please try again';
+class BookmarksView extends View {
+  _parentElement = document.querySelector('.bookmarks__list');
+  _errorMessage = 'No bookmarks yet. Find a nice recipe and bookmark it ;-)';
   _message = '';
 
   _generateMarkup() {
     // log the received data if array is not empty
     if (this._data && this._data.length !== 0) console.log(this._data);
     // For each recipe, generate markup preview then join them into one code string
+    // previewView.render() generates a single preview at a time
     return this._data
-      .map(searchResult => previewView.render(searchResult, false))
+      .map(bookmark => previewView.render(bookmark, false))
       .join('');
   }
 }
 
-export default new ResultsView();
+export default new BookmarksView();

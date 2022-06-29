@@ -8,6 +8,8 @@ const timeout = function (s) {
   });
 };
 
+// async before a function makes it return a promise
+// await makes a function wait for a promise
 export const getJSON = async function (url) {
   try {
     // Promise.race() returns as soon as one promise fulfills or rejects

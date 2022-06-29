@@ -6,7 +6,8 @@ import View from './View.js';
 class PaginationView extends View {
   _parentElement = document.querySelector('.pagination');
 
-  addHandlerClick(handler) {
+  // change search page to next or previous
+  addHandlerChangePage(handler) {
     // event delegation to listen for two events simultaneously
     this._parentElement.addEventListener('click', function (e) {
       // searches for clicked elements closest to parents with given 'selector' toward document root
@@ -17,7 +18,7 @@ class PaginationView extends View {
 
       // Obtain page to go to from button itself
       const goToPage = +btn.dataset.goto; // convert string to number
-
+      // Call handler (controller.controlPagination()) with the page you want to go to
       handler(goToPage);
     });
   }
