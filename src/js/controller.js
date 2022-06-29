@@ -3,6 +3,7 @@ import recipeView from './views/recipeView.js';
 import searchView from './views/searchView.js';
 import resultsView from './views/resultsView.js';
 import paginationView from './views/paginationView.js';
+import bookmarksView from './views/bookmarksView.js';
 
 // Polyfilling
 import 'core-js/stable'; // Polyfills async await
@@ -28,8 +29,11 @@ const controlRecipes = async function () {
     // Guard clause for case where URL has no id
     if (!id) return;
 
-    // 0) Update results view to mark selected search result when loading recipe
+    // 0) Update results view to highlight selected search result when loading recipe
     resultsView.update(model.getSearchResultsPage());
+    console.log(model.state.bookmarks);
+    // Update bookmarks menu to highlight selected recipe
+    bookmarksView.update(model.state.bookmarks);
 
     // Render spinner when waiting for image to load
     recipeView.renderSpinner();
@@ -87,10 +91,13 @@ const controlServings = function (newServings) {
 };
 
 const controlAddBookmark = function () {
+  // 1) Add / remove bookmark in state object
   if (!model.state.recipe.bookmarked) model.addBookmark(model.state.recipe);
   else model.deleteBookmark(model.state.recipe.id);
-
+  // 2) Update recipe view button
   recipeView.update(model.state.recipe);
+  // 3) Add recipe preview to bookmarks drop down menu
+  bookmarksView.render(model.state.bookmarks);
 };
 
 // Initializes the application

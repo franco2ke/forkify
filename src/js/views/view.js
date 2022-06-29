@@ -2,13 +2,14 @@ import icons from 'url:../../img/icons.svg';
 // Parent class of other views
 export default class View {
   _data;
-  render(data) {
+  render(data, render = true) {
     // Guard clause in case of no data or if data is an empty array
     if (!data || (Array.isArray(data) && data.length === 0))
       return this.renderError();
     this._data = data;
 
     const markup = this._generateMarkup();
+    if (!render) return markup;
     // Remove place holder html in container
     this._clear();
     // Display updated Recipe
