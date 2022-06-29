@@ -4,6 +4,7 @@ import searchView from './views/searchView.js';
 import resultsView from './views/resultsView.js';
 import paginationView from './views/paginationView.js';
 import bookmarksView from './views/bookmarksView.js';
+import addRecipeView from './views/addRecipeView.js';
 
 // Polyfilling
 import 'core-js/stable'; // Polyfills async await
@@ -93,6 +94,7 @@ const controlServings = function (newServings) {
   recipeView.update(model.state.recipe);
 };
 
+// Handle bookmark functionality (add, delete, update views)
 const controlAddBookmark = function () {
   // 1) Add / remove bookmark in state object
   if (!model.state.recipe.bookmarked) model.addBookmark(model.state.recipe);
@@ -103,8 +105,15 @@ const controlAddBookmark = function () {
   bookmarksView.render(model.state.bookmarks);
 };
 
+// To render bookmarks on initial page load
 const controlBookmarks = function () {
   bookmarksView.render(model.state.bookmarks);
+};
+
+// Upload new recipe from form plus included functionality
+const controlAddRecipe = function (newRecipe) {
+  console.log(newRecipe);
+  // Upload new recipe data
 };
 
 // Initializes the application
@@ -123,6 +132,8 @@ const init = function () {
   searchView.addHandlerSearch(controlSearchResults);
   // Scroll search results page by page
   paginationView.addHandlerChangePage(controlPagination);
+  // Upload new recipe's, bookmark and display
+  addRecipeView.addHandlerUpload(controlAddRecipe);
 };
 
 init();
