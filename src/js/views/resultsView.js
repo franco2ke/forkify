@@ -11,7 +11,7 @@ class ResultsView extends View {
 
   _generateMarkup() {
     // log the received data if array is not empty
-    if (this._data && this._data.length !== 0) console.log(this._data);
+    // if (this._data && this._data.length !== 0) console.log(this._data);
     // For each recipe, generate markup preview then join them into one code string
     return this._data
       .map(searchResult => previewView.render(searchResult, false))
