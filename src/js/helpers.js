@@ -8,9 +8,38 @@ const timeout = function (s) {
   });
 };
 
+// Refactoring getJSON and sendJSON to one function
+export const AJAX = async function (url, uploadData = undefined) {
+  try {
+    const fetchPro = uploadData
+      ? fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(uploadData),
+        })
+      : fetch(url);
+
+    // Promise.race() returns as soon as one promise fulfills or rejects
+    const res = await Promise.race([fetchPro, timeout(TIMEOUT_SEC)]);
+    const data = await res.json();
+
+    // Custom error, guard clause
+    if (!res.ok) throw new Error(`${data.message} (${res.status})`);
+    return data;
+  } catch (err) {
+    // console.log(err);
+    // Because async await return fulfilled promises even when an error occurs, to return the error we have to throw a new error
+    // Now the promise returned from getJSON() will actually reject --> We have propagated the error
+    throw err;
+  }
+};
+
+/*
 // async before a function makes it return a promise
 // await makes a function wait for a promise
-export const getJSON = async function (url) {
+ export const getJSON = async function (url) {
   try {
     // Promise.race() returns as soon as one promise fulfills or rejects
     const res = await Promise.race([fetch(url), timeout(TIMEOUT_SEC)]);
@@ -52,4 +81,5 @@ export const sendJSON = async function (url, uploadData) {
     // Now the promise returned from getJSON() will actually reject --> We have propagated the error
     throw err;
   }
-};
+}; 
+*/

@@ -2,7 +2,8 @@
 // import { bind } from 'core-js/core/function';
 import { async } from 'regenerator-runtime';
 import { API_URL, RES_PER_PAGE, KEY } from './config.js';
-import { getJSON, sendJSON } from './helpers.js';
+// import { getJSON, sendJSONAJAX } from './helpers.js';
+import { AJAX } from './helpers.js';
 
 // The state object
 export const state = {
@@ -40,7 +41,7 @@ const createRecipeObject = function (data) {
 // load Recipe will edit the state object, afterwhich the controller will obtain the data from there.
 export const loadRecipe = async function (id) {
   try {
-    const data = await getJSON(`${API_URL}${id}`);
+    const data = await AJAX(`${API_URL}${id}?key=${KEY}`);
 
     // console.log(data);
 
@@ -61,7 +62,7 @@ export const loadRecipe = async function (id) {
 export const loadSearchResults = async function (query) {
   try {
     state.search.query = query;
-    const data = await getJSON(`${API_URL}?search=${query}`);
+    const data = await AJAX(`${API_URL}?search=${query}&key=${KEY}`);
     console.log(data);
 
     // create a new array of recipe results from mapping each recipe object
@@ -71,6 +72,9 @@ export const loadSearchResults = async function (query) {
         title: rec.title,
         publisher: rec.publisher,
         image: rec.image_url,
+        // && short circuits, if recipe.key does not exist, it exits and doesnt execute 2nd part
+        // if true, expression returns the second value, which when destructured becomes part of the bigger object
+        ...(rec.key && { key: rec.key }),
       };
     });
     // Reset search results page on every search
@@ -160,8 +164,8 @@ export const uploadRecipe = async function (newRecipe) {
       // filter our entrys whose 1st item starts with 'ingredient' and whose 2nd array not empty
       .filter(entry => entry[0].startsWith('ingredient') && entry[1] !== '')
       .map(ing => {
-        // replaceAll() here replaces all spaces with no space
-        const ingArr = ing[1].replaceAll(' ', '').split(',');
+        // trim() removes whitespace from both ends of a string and returns a new string, without modifying original string.
+        const ingArr = ing[1].split(',').map(el => el.trim());
         // Test if array has 3 items else throw validation error()
         if (ingArr.length != 3)
           throw new Error(
@@ -182,7 +186,7 @@ export const uploadRecipe = async function (newRecipe) {
     };
 
     // Upload data using helper URL
-    const data = await sendJSON(`${API_URL}?key=${KEY}`, recipe);
+    const data = await AJAX(`${API_URL}?key=${KEY}`, recipe);
     // create recipe object from returned data
     state.recipe = createRecipeObject(data);
     // add bookmark to local storage
