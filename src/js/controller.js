@@ -124,6 +124,13 @@ const controlAddRecipe = async function (newRecipe) {
 
     // Display success message
     addRecipeView.renderMessage();
+    // Render bookmark view
+    // Not using bookmark because we are inserting a new element
+    bookmarksView.render(model.state.bookmarks);
+    // Change ID in url to match uploaded recipe --> history api
+    // pushState: change url without reloading page
+    window.history.pushState(null, '', `#${model.state.recipe.id}`);
+    // window.history.back();
     // Close form window
     setTimeout(function () {
       addRecipeView._toggleWindow();
