@@ -1,8 +1,8 @@
 // named imports
 // import { bind } from 'core-js/core/function';
 import { async } from 'regenerator-runtime';
-import { API_URL, RES_PER_PAGE } from './config.js';
-import { getJSON } from './helpers.js';
+import { API_URL, RES_PER_PAGE, KEY } from './config.js';
+import { getJSON, sendJSON } from './helpers.js';
 
 // The state object
 export const state = {
@@ -16,6 +16,27 @@ export const state = {
   bookmarks: [],
 };
 
+const createRecipeObject = function (data) {
+  // Object destructuring
+  const { recipe } = data.data;
+
+  // overwriting the old object to remove underscore and erase old data
+  // replacing with a new object
+  return {
+    id: recipe.id,
+    title: recipe.title,
+    publisher: recipe.publisher,
+    sourceUrl: recipe.source_url,
+    image: recipe.image_url,
+    servings: recipe.servings,
+    cookingTime: recipe.cooking_time,
+    ingredients: recipe.ingredients,
+    // && short circuits, if recipe.key does not exist, it exits and doesnt execute 2nd part
+    // if true, expression returns the second value, which when destructured becomes part of the bigger object
+    ...(recipe.key && { key: recipe.key }),
+  };
+};
+
 // load Recipe will edit the state object, afterwhich the controller will obtain the data from there.
 export const loadRecipe = async function (id) {
   try {
@@ -23,22 +44,7 @@ export const loadRecipe = async function (id) {
 
     // console.log(data);
 
-    // Object destructuring
-    const { recipe } = data.data;
-
-    // overwriting the old object to remove underscore and erase old data
-    // replacing with a new object
-    state.recipe = {
-      id: recipe.id,
-      title: recipe.title,
-      publisher: recipe.publisher,
-      sourceUrl: recipe.source_url,
-      image: recipe.image_url,
-      servings: recipe.servings,
-      cookingTime: recipe.cooking_time,
-      ingredients: recipe.ingredients,
-    };
-
+    state.recipe = createRecipeObject(data);
     // check if recipe is stored as bookmark and update 'bookmarked' property if true
     // some() loops over an array and returns true if any meets the condition provided
     if (state.bookmarks.some(bookmark => bookmark.id === state.recipe.id))
@@ -134,7 +140,7 @@ const init = function () {
 
 // init runs as soon a module is imported I believe
 init();
-console.log(state.bookmarks);
+// console.log(state.bookmarks);
 
 // Debugging function to clear bookmarks
 // const clearBookmarks = function () {
@@ -142,3 +148,46 @@ console.log(state.bookmarks);
 // };
 
 // clearBookmarks();
+
+// uploading data to api
+export const uploadRecipe = async function (newRecipe) {
+  try {
+    console.log(Object.entries(newRecipe));
+    // Object.entries() Converts object to array
+    // filter returns an array of elements, to whom the condition runs true
+
+    const ingredients = Object.entries(newRecipe)
+      // filter our entrys whose 1st item starts with 'ingredient' and whose 2nd array not empty
+      .filter(entry => entry[0].startsWith('ingredient') && entry[1] !== '')
+      .map(ing => {
+        // replaceAll() here replaces all spaces with no space
+        const ingArr = ing[1].replaceAll(' ', '').split(',');
+        // Test if array has 3 items else throw validation error()
+        if (ingArr.length != 3)
+          throw new Error(
+            'Wrong ingredient format! Please use the correct format :)'
+          );
+        const [quantity, unit, description] = ingArr;
+        return { quantity: quantity ? +quantity : null, unit, description };
+      });
+
+    const recipe = {
+      title: newRecipe.title,
+      source_url: newRecipe.sourceUrl,
+      image_url: newRecipe.image,
+      publisher: newRecipe.publisher,
+      cooking_time: +newRecipe.cookingTime,
+      servings: +newRecipe.servings,
+      ingredients,
+    };
+
+    // Upload data using helper URL
+    const data = await sendJSON(`${API_URL}?key=${KEY}`, recipe);
+    // create recipe object from returned data
+    state.recipe = createRecipeObject(data);
+    // add bookmark to local storage
+    addBookmark(state.recipe);
+  } catch (err) {
+    throw err;
+  }
+};
