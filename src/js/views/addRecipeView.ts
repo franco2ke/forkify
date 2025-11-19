@@ -1,15 +1,15 @@
-import icons from 'url:../../img/icons.svg';
 // Import parent class
-import View from './View.js';
+import View from './view.ts';
+import type { NewRecipeData } from '../types.ts';
 // This view displays the pagination buttons
 
-class AddRecipeView extends View {
-  _parentElement = document.querySelector('.upload');
-  _message = 'Recipe was successfully uploaded :)';
-  _window = document.querySelector('.add-recipe-window');
-  _overlay = document.querySelector('.overlay');
-  _btnOpen = document.querySelector('.nav__btn--add-recipe');
-  _btnClose = document.querySelector('.btn--close-modal');
+class AddRecipeView extends View<undefined> {
+  protected _parentElement = document.querySelector('.upload') as HTMLElement | null;
+  protected _message = 'Recipe was successfully uploaded :)';
+  private _window = document.querySelector('.add-recipe-window') as HTMLElement;
+  private _overlay = document.querySelector('.overlay') as HTMLElement;
+  private _btnOpen = document.querySelector('.nav__btn--add-recipe') as HTMLElement;
+  private _btnClose = document.querySelector('.btn--close-modal') as HTMLElement;
 
   // To attach the event listeners to the view as soon as the page loads (AddRecipeView is created)
   constructor() {
@@ -18,7 +18,7 @@ class AddRecipeView extends View {
     this._addHandlerHideWindow();
   }
 
-  _toggleWindow() {
+  _toggleWindow(): void {
     this._overlay.classList.toggle('hidden');
     this._window.classList.toggle('hidden');
   }
@@ -26,30 +26,32 @@ class AddRecipeView extends View {
   // Make modal window and overlay visible
   // controller does not interfere at all
   // Manually setting this keyword necessary here
-  _addHandlerShowWindow() {
+  private _addHandlerShowWindow(): void {
     this._btnOpen.addEventListener('click', this._toggleWindow.bind(this));
   }
 
   // Hide modal and overlay by clicking close button or anywhere on modal
-  _addHandlerHideWindow() {
+  private _addHandlerHideWindow(): void {
     this._btnClose.addEventListener('click', this._toggleWindow.bind(this));
     this._overlay.addEventListener('click', this._toggleWindow.bind(this));
   }
 
   // upload form data on button submission
-  addHandlerUpload(handler) {
-    this._parentElement.addEventListener('submit', function (e) {
+  addHandlerUpload(handler: (data: NewRecipeData) => void): void {
+    this._parentElement!.addEventListener('submit', function (this: HTMLFormElement, e: Event) {
       e.preventDefault();
       // Reading form data with modern api -> (expands into array)
       // this points to form as it is in the callback function
       const dataArr = [...new FormData(this)];
       // convert Array data to Object using Object.fromEntries()
-      const data = Object.fromEntries(dataArr);
+      const data = Object.fromEntries(dataArr) as NewRecipeData;
       handler(data);
     });
   }
 
-  _generateMarkup() {}
+  protected _generateMarkup(): string {
+    return '';
+  }
 }
 
 export default new AddRecipeView();

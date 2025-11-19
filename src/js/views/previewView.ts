@@ -1,12 +1,13 @@
 import icons from 'url:../../img/icons.svg';
 // Import parent class
-import View from './View.js';
-// PrevieView used as a child view of the resultsView and bookmarksView
+import View from './view.ts';
+import type { RecipePreview } from '../types.ts';
+// PreviewView used as a child view of the resultsView and bookmarksView
 
-class PreviewView extends View {
-  _parentElement = '';
+class PreviewView extends View<RecipePreview> {
+  protected _parentElement: HTMLElement | null = null;
 
-  _generateMarkup() {
+  protected _generateMarkup(): string {
     // if the url id is same as preview id, highlight recipe preview
     const id = window.location.hash.slice(1);
 

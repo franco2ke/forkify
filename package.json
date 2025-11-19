@@ -2,17 +2,18 @@
   "name": "forkify",
   "version": "1.0.0",
   "description": "Recipe application",
-  "source": "src/js/controller.js",
-  "main": "index.js",
+  "source": "index.html",
   "scripts": {
     "start": "parcel index.html",
-    "build": "parcel build index.html"
+    "build": "parcel build index.html",
+    "type-check": "tsc --noEmit"
   },
   "author": "Francis Wafula",
   "license": "ISC",
   "devDependencies": {
     "@parcel/transformer-sass": "^2.6.0",
-    "parcel": "^2.6.0"
+    "parcel": "^2.6.0",
+    "typescript": "^5.3.3"
   },
   "dependencies": {
     "core-js": "^3.23.1",

@@ -1,29 +1,30 @@
 import icons from 'url:../../img/icons.svg';
 // Import parent class
-import View from './View.js';
+import View from './view.ts';
+import type { SearchState } from '../types.ts';
 // This view displays the pagination buttons
 
-class PaginationView extends View {
-  _parentElement = document.querySelector('.pagination');
+class PaginationView extends View<SearchState> {
+  protected _parentElement = document.querySelector('.pagination') as HTMLElement | null;
 
   // change search page to next or previous
-  addHandlerChangePage(handler) {
+  addHandlerChangePage(handler: (page: number) => void): void {
     // event delegation to listen for two events simultaneously
-    this._parentElement.addEventListener('click', function (e) {
+    this._parentElement!.addEventListener('click', function (e) {
       // searches for clicked elements closest to parents with given 'selector' toward document root
-      const btn = e.target.closest('.btn--inline');
+      const btn = (e.target as Element).closest('.btn--inline') as HTMLElement | null;
       console.log(btn);
       // Guard Clause
       if (!btn) return;
 
       // Obtain page to go to from button itself
-      const goToPage = +btn.dataset.goto; // convert string to number
+      const goToPage = +(btn.dataset.goto ?? 1); // convert string to number
       // Call handler (controller.controlPagination()) with the page you want to go to
       handler(goToPage);
     });
   }
 
-  _generateMarkup() {
+  protected _generateMarkup(): string {
     const curPage = this._data.page;
     // Determine the number of pages, round up
     const numPages = Math.ceil(
@@ -73,7 +74,7 @@ class PaginationView extends View {
             <use href="${icons}#icon-arrow-right"></use>
           </svg>
         </button>
-        
+
         `;
     }
     // Page 1, and there are NO other pages - Default Scenario
