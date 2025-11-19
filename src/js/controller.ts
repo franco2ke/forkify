@@ -1,11 +1,12 @@
-import * as model from './model.js';
-import { MODAL_CLOSE_SEC } from './config.js';
-import recipeView from './views/recipeView.js';
-import searchView from './views/searchView.js';
-import resultsView from './views/resultsView.js';
-import paginationView from './views/paginationView.js';
-import bookmarksView from './views/bookmarksView.js';
-import addRecipeView from './views/addRecipeView.js';
+import * as model from './model.ts';
+import { MODAL_CLOSE_SEC } from './config.ts';
+import recipeView from './views/recipeView.ts';
+import searchView from './views/searchView.ts';
+import resultsView from './views/resultsView.ts';
+import paginationView from './views/paginationView.ts';
+import bookmarksView from './views/bookmarksView.ts';
+import addRecipeView from './views/addRecipeView.ts';
+import type { NewRecipeData, Recipe } from './types.ts';
 
 // Polyfilling
 import 'core-js/stable'; // Polyfills async await
@@ -21,7 +22,7 @@ import 'regenerator-runtime/runtime'; // Polyfills everything else
 // LEC 288: Load a Recipe from API
 
 // load recipe from api and process the response
-const controlRecipes = async function () {
+const controlRecipes = async function (): Promise<void> {
   try {
     // Obtain the hash from the window object once hashchange/load event has been triggered
     // The Window.location read-only property returns a Location object with information about the current location of the document.
@@ -48,7 +49,7 @@ const controlRecipes = async function () {
     await model.loadRecipe(id);
 
     // 5) LEC 289: Rendering the Recipe
-    recipeView.render(model.state.recipe);
+    recipeView.render(model.state.recipe as Recipe);
   } catch (err) {
     recipeView.renderError();
     console.error(err);
@@ -56,7 +57,7 @@ const controlRecipes = async function () {
 };
 
 // Handles Search Queries and Results
-const controlSearchResults = async function () {
+const controlSearchResults = async function (): Promise<void> {
   try {
     resultsView.renderSpinner();
     // 1) Get search query
@@ -77,7 +78,7 @@ const controlSearchResults = async function () {
 };
 
 // Handler for Page changes (when prev or next buttons are pressed)
-const controlPagination = function (goToPage) {
+const controlPagination = function (goToPage: number): void {
   // 1) Render new page results and update search page number in state
   resultsView.render(model.getSearchResultsPage(goToPage));
   // 2) Display / Render new pagination buttons
@@ -86,33 +87,33 @@ const controlPagination = function (goToPage) {
 };
 
 // Update Recipe Servings
-const controlServings = function (newServings) {
+const controlServings = function (newServings: number): void {
   // Update the recipe servings (in state)
   model.updateServings(newServings);
   // Update the recipe view
   // recipeView.render(model.state.recipe);
   // Update the recipe view using a DOM Updating Algorithm
-  recipeView.update(model.state.recipe);
+  recipeView.update(model.state.recipe as Recipe);
 };
 
 // Handle bookmark functionality (add, delete, update views)
-const controlAddBookmark = function () {
+const controlAddBookmark = function (): void {
   // 1) Add / remove bookmark in state object
-  if (!model.state.recipe.bookmarked) model.addBookmark(model.state.recipe);
-  else model.deleteBookmark(model.state.recipe.id);
+  if (!(model.state.recipe as Recipe).bookmarked) model.addBookmark(model.state.recipe as Recipe);
+  else model.deleteBookmark((model.state.recipe as Recipe).id);
   // 2) Update recipe view button
-  recipeView.update(model.state.recipe);
+  recipeView.update(model.state.recipe as Recipe);
   // 3) Add recipe preview to bookmarks drop down menu
   bookmarksView.render(model.state.bookmarks);
 };
 
 // To render bookmarks on initial page load
-const controlBookmarks = function () {
+const controlBookmarks = function (): void {
   bookmarksView.render(model.state.bookmarks);
 };
 
 // Upload new recipe from form plus included functionality
-const controlAddRecipe = async function (newRecipe) {
+const controlAddRecipe = async function (newRecipe: NewRecipeData): Promise<void> {
   try {
     // Show loading spinner
     addRecipeView.renderSpinner();
@@ -120,7 +121,7 @@ const controlAddRecipe = async function (newRecipe) {
     await model.uploadRecipe(newRecipe);
     console.log(model.state.recipe);
     // Render recipe
-    recipeView.render(model.state.recipe);
+    recipeView.render(model.state.recipe as Recipe);
 
     // Display success message
     addRecipeView.renderMessage();
@@ -129,7 +130,7 @@ const controlAddRecipe = async function (newRecipe) {
     bookmarksView.render(model.state.bookmarks);
     // Change ID in url to match uploaded recipe --> history api
     // pushState: change url without reloading page
-    window.history.pushState(null, '', `#${model.state.recipe.id}`);
+    window.history.pushState(null, '', `#${(model.state.recipe as Recipe).id}`);
     // window.history.back();
     // Close form window
     setTimeout(function () {
@@ -137,13 +138,13 @@ const controlAddRecipe = async function (newRecipe) {
     }, MODAL_CLOSE_SEC * 1000);
   } catch (err) {
     console.error('💥', err);
-    addRecipeView.renderError(err.message);
+    addRecipeView.renderError((err as Error).message);
   }
 };
 
 // Initializes the application
 // Publisher Subscriber Pattern Implementation
-const init = function () {
+const init = function (): void {
   // Register Handler Functions
   // Render bookmarks on initial page load to allow updates
   bookmarksView.addHandlerRender(controlBookmarks);
@@ -271,6 +272,6 @@ init();
 // - Reduce strain on the browser
 // - An update method to use in updating the servings
 
-// Some DOM properties don’t possess corresponding attributes.
-// Some HTML attributes don’t possess corresponding properties.
-// Some HTML attributes, like ‘class’, possess 1:1 mapping to properties.
+// Some DOM properties don't possess corresponding attributes.
+// Some HTML attributes don't possess corresponding properties.
+// Some HTML attributes, like 'class', possess 1:1 mapping to properties.

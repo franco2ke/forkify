@@ -1,48 +1,49 @@
 // Import parent class
-import View from './View.js';
+import View from './view.ts';
 // In Parcel 2 we can import all kinds of assets including images
 // Use "url: <path>" for static assets that are not programming files; images, videos, sound files etc.
 import icons from 'url:../../img/icons.svg';
 import { Fraction } from 'fractional';
+import type { Recipe, Ingredient } from '../types.ts';
 // console.log(Fraction);
 
-class RecipeView extends View {
+class RecipeView extends View<Recipe> {
   // Each view to have some private properties and classes
-  _parentElement = document.querySelector('.recipe');
-  _errorMessage = 'We could not find that recipe. Please try another one!';
-  _message = '';
+  protected _parentElement = document.querySelector('.recipe') as HTMLElement | null;
+  protected _errorMessage = 'We could not find that recipe. Please try another one!';
+  protected _message = '';
 
   // Publisher - Subscriber - Pattern
-  addHandlerRender(handler) {
+  addHandlerRender(handler: () => void): void {
     ['hashchange', 'load'].forEach(event =>
       window.addEventListener(event, handler)
     );
   }
 
-  addHandlerUpdateServings(handler) {
-    this._parentElement.addEventListener('click', function (e) {
-      const btn = e.target.closest('.btn--update-servings');
+  addHandlerUpdateServings(handler: (servings: number) => void): void {
+    this._parentElement!.addEventListener('click', function (e) {
+      const btn = (e.target as Element).closest('.btn--update-servings') as HTMLElement | null;
       if (!btn) return;
       // console.log(btn);
       // - dashes in attribute names are converted to camel case
-      const updateTo = +btn.dataset.updateTo; // data-update-to attribute --> dataset.updateTo, dash becomes Camelcase
+      const updateTo = +(btn.dataset.updateTo ?? 0); // data-update-to attribute --> dataset.updateTo, dash becomes Camelcase
       // Ensure serving is never reduced to below zero
       if (updateTo > 0) handler(updateTo);
     });
   }
 
-  addHandlerAddBookmark(handler) {
-    this._parentElement.addEventListener('click', function (e) {
+  addHandlerAddBookmark(handler: () => void): void {
+    this._parentElement!.addEventListener('click', function (e) {
       // important to use event delegation as button whose events we are targetting does not exist when the app is loaded / initialized <-- event delegation use case
       // impossible to add an event listener to an element that does not exist
-      const btn = e.target.closest('.btn--bookmark');
+      const btn = (e.target as Element).closest('.btn--bookmark');
       if (!btn) return;
       handler();
     });
   }
 
-  _generateMarkup() {
-    return ` 
+  protected _generateMarkup(): string {
+    return `
       <figure class="recipe__fig">
         <img src="${this._data.image}" alt="${
       this._data.title
@@ -132,7 +133,7 @@ class RecipeView extends View {
       </div>`;
   }
 
-  _generateMarkupIngredient(ing) {
+  _generateMarkupIngredient(ing: Ingredient): string {
     return `
       <li class="recipe__ingredient">
         <svg class="recipe__icon">

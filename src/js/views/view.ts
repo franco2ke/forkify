@@ -1,8 +1,12 @@
 import icons from 'url:../../img/icons.svg';
 // Parent class of other views
-export default class View {
-  _data;
-  render(data, render = true) {
+export default abstract class View<T> {
+  protected _data!: T;
+  protected abstract _parentElement: HTMLElement | null;
+  protected _errorMessage: string = '';
+  protected _message: string = '';
+
+  render(data: T, render: boolean = true): string | void {
     // Guard clause in case of no data or if data is an empty array
     if (!data || (Array.isArray(data) && data.length === 0))
       return this.renderError();
@@ -13,12 +17,12 @@ export default class View {
     // Remove place holder html in container
     this._clear();
     // Display updated Recipe
-    this._parentElement.insertAdjacentHTML('afterbegin', markup);
+    this._parentElement?.insertAdjacentHTML('afterbegin', markup);
   }
 
   // Updating using a DOM updating algorithm
   // Update only changed sections on the DOM
-  update(data) {
+  update(data: T): void {
     this._data = data;
 
     const newMarkup = this._generateMarkup();
@@ -31,14 +35,14 @@ export default class View {
     // Array.from() converts returned nodelist into actually array to allow us to use array methods, map, forEach etc
     const newElements = Array.from(newDOM.querySelectorAll('*'));
     // Select all elements in the real DOM that exists on the browser page
-    const curElements = Array.from(this._parentElement.querySelectorAll('*'));
+    const curElements = Array.from(this._parentElement!.querySelectorAll('*'));
     // console.log(curElements);
     // console.log(newElements);
 
     // Compare the DOM nodes by looping over the two arrays at the same time
     // array.forEach(function(currentValue, index, arr), thisValue)
     newElements.forEach((newEl, i) => {
-      const curEl = curElements[i];
+      const curEl = curElements[i] as Element;
 
       // Compare nodes by using element.isEqualNode() method
       // console.log(curEl, newEl.isEqualNode(curEl));
@@ -51,7 +55,7 @@ export default class View {
         // For the document itself, 'nodevalue' returns null. For text, comment and CDATA nodes, nodeValue returns the content of the node.
         // For attribute nodes, the value of the atrribute is returned.
         !newEl.isEqualNode(curEl) &&
-        newEl.firstChild?.nodeValue.trim() !== ''
+        newEl.firstChild?.nodeValue?.trim() !== ''
         // Optional chaining to ensure lack of firschild does not cause error
         // have a clearer look at nodeValue
         // When an element contains textContent directly, the element node is separate from its textContent which is a child node; firstChild
@@ -66,19 +70,19 @@ export default class View {
       if (!newEl.isEqualNode(curEl)) {
         //console.log(curEl.attributes);
         Array.from(newEl.attributes).forEach(attr => {
-          curEl.setAttribute(attr.name, attr.nodeValue); // attr.nodeValue === attr.value
+          curEl.setAttribute(attr.name, attr.nodeValue ?? ''); // attr.nodeValue === attr.value
         });
         // console.log(curEl.attributes);
       }
     });
   }
 
-  _clear() {
-    this._parentElement.innerHTML = '';
+  protected _clear(): void {
+    this._parentElement!.innerHTML = '';
   }
 
   // Render the Spinner function, while recipe is loading
-  renderSpinner = function () {
+  renderSpinner = function (this: View<T>): void {
     const markup = `
       <div class="spinner">
         <svg>
@@ -87,11 +91,11 @@ export default class View {
       </div>`;
 
     this._clear();
-    this._parentElement.insertAdjacentHTML('afterbegin', markup);
+    this._parentElement?.insertAdjacentHTML('afterbegin', markup);
   };
 
   // Display the error message
-  renderError(message = this._errorMessage) {
+  renderError(message: string = this._errorMessage): void {
     const markup = `
       <div class="error">
         <div>
@@ -103,11 +107,11 @@ export default class View {
       </div>`;
 
     this._clear();
-    this._parentElement.insertAdjacentHTML('afterbegin', markup);
+    this._parentElement?.insertAdjacentHTML('afterbegin', markup);
   }
 
   // Display the success message
-  renderMessage(message = this._message) {
+  renderMessage(message: string = this._message): void {
     const markup = `
       <div class="message">
         <div>
@@ -119,6 +123,8 @@ export default class View {
       </div>`;
 
     this._clear();
-    this._parentElement.insertAdjacentHTML('afterbegin', markup);
+    this._parentElement?.insertAdjacentHTML('afterbegin', markup);
   }
+
+  protected abstract _generateMarkup(): string;
 }

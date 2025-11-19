@@ -1,6 +1,7 @@
-import { TIMEOUT_SEC } from './config.js';
+import { TIMEOUT_SEC } from './config.ts';
+import type { ApiRecipeData, ApiSearchData } from './types.ts';
 
-const timeout = function (s) {
+const timeout = function (s: number): Promise<never> {
   return new Promise(function (_, reject) {
     setTimeout(function () {
       reject(new Error(`Request took too long! Timeout after ${s} second`));
@@ -9,7 +10,10 @@ const timeout = function (s) {
 };
 
 // Refactoring getJSON and sendJSON to one function
-export const AJAX = async function (url, uploadData = undefined) {
+export const AJAX = async function <T = ApiRecipeData | ApiSearchData>(
+  url: string,
+  uploadData: object | undefined = undefined
+): Promise<T> {
   try {
     const fetchPro = uploadData
       ? fetch(url, {
@@ -23,10 +27,10 @@ export const AJAX = async function (url, uploadData = undefined) {
 
     // Promise.race() returns as soon as one promise fulfills or rejects
     const res = await Promise.race([fetchPro, timeout(TIMEOUT_SEC)]);
-    const data = await res.json();
+    const data = (await res.json()) as T;
 
     // Custom error, guard clause
-    if (!res.ok) throw new Error(`${data.message} (${res.status})`);
+    if (!res.ok) throw new Error(`${(data as { message?: string }).message} (${res.status})`);
     return data;
   } catch (err) {
     // console.log(err);
@@ -81,5 +85,5 @@ export const sendJSON = async function (url, uploadData) {
     // Now the promise returned from getJSON() will actually reject --> We have propagated the error
     throw err;
   }
-}; 
+};
 */
